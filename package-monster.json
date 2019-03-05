@@ -29,12 +29,8 @@
 
         "files": [
             {
-                "src": "systemd/powerschedule-boot.service",
-                "dst": "/lib/systemd/system/powerschedule-boot.service"
-            },
-            {
-                "src": "systemd/powerschedule-shutdown.service",
-                "dst": "/lib/systemd/system/powerschedule-shutdown.service"
+                "src": "systemd/powerschedule.service",
+                "dst": "/lib/systemd/system/powerschedule.service"
             }
         ],
 
