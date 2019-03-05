@@ -20,7 +20,7 @@
         ],
 
         "etc": [
-            "powerschedule.conf"
+            "conf/powerschedule.conf"
         ],
 
         "sbin": [
