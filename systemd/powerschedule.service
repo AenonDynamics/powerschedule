@@ -1,5 +1,5 @@
 [Unit]
-Description=powerschedule boot-hook
+Description=powerschedule
 
 # Requires local FS
 Requires=local-fs.target
