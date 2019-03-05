@@ -37,9 +37,8 @@ The script requires 2 systemd hooks to setup the schedules
 * **on shutdown**: set the wakeup again to avoid stall conditions (systems running > 24h without automatic shutdown)
 
 ```bash
-# enable systemd hooks
-systemctl enable powerschedule-boot.service
-systemctl enable powerschedule-shutdown.service
+# enable systemd service
+systemctl enable powerschedule.service
 ```
 
 ## Contribution ##

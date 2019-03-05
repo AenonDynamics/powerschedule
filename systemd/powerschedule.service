@@ -1,0 +1,17 @@
+[Unit]
+Description=powerschedule boot-hook
+
+# Requires local FS
+Requires=local-fs.target
+After=local-fs.target
+
+[Service]
+ExecStart=/usr/sbin/powerschedule boot
+ExecStop=/usr/sbin/powerschedule shutdown
+
+# Just Execute the shell script
+Type=oneshot
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
