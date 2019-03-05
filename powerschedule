@@ -42,9 +42,6 @@ EOF
 
 # use systemd transisent timer to schedule system shutdown
 setPoweroffSchedule(){
-    SCHEDULE=$(date -d "$1")
-    echo "setting poweroff schedule to $1 ($SCHEDULE)"
-
     # normalize time
     NOW=$(data +%s)
     TS=$(date +%s -d "today $1")
@@ -53,6 +50,10 @@ setPoweroffSchedule(){
     if [ "$NOW" -gt "$TS"]; then
         TS=$(date +%s -d "tomorrow $1")
     fi
+
+    # print next schedule
+    SCHEDULE=$(date -d "@$TS")
+    echo "setting power-off schedule to $1 ($SCHEDULE)"
 
     # add transisent timer
     systemd-run --on-calendar="@$TS" systemctl poweroff
@@ -60,9 +61,6 @@ setPoweroffSchedule(){
 
 # use rtcwake to wakeup
 setWakeupSchedule(){
-    SCHEDULE=$(date -d "$1")
-    echo "setting poweron schedule to $1 ($SCHEDULE)"
-
     # normalize time
     NOW=$(data +%s)
     TS=$(date +%s -d "today $1")
@@ -71,6 +69,10 @@ setWakeupSchedule(){
     if [ "$NOW" -gt "$TS"]; then
         TS=$(date +%s -d "tomorrow $1")
     fi
+
+    # print next schedule
+    SCHEDULE=$(date -d "@$TS")
+    echo "setting power-on schedule to $1 ($SCHEDULE)"
 
     # set rtcwake; wakeup only; absolute time
     rtcwake --mode=no --time=$TS
