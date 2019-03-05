@@ -1,0 +1,78 @@
+#!/bin/sh
+
+# ----------------------------------------------------------------------
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+# --
+# Copyright 2019 Andi Dittrich <https://aenon-dynamics.com>
+# ----------------------------------------------------------------------
+
+# powerschedule https://github.com/AenonDynamics/powerschedule
+VERSION="0.1.0"
+
+show_usage(){
+    cat << EOF
+Usage: powerschedule [boot|shutdown]
+     --help                  Displays this help
+     --version               Displays version
+EOF
+    exit 0
+}
+
+show_version(){
+    cat << EOF
+powerschedule
+ - Version: ${VERSION}
+ - License: MPL-2.0 http://mozilla.org/MPL/2.0/
+ - Repository: https://github.com/AenonDynamics/powerschedule
+EOF
+    exit 0
+}
+
+# simple processing
+[ "$1" = "--help" ] && show_usage
+[ "$1" = "--version" ] && show_version
+
+# config available ?
+[ ! -f "/etc/powerschedule.conf" ] && { echo >&2 "configuration file </etc/powerschedule.conf> not found"; exit 1; }
+
+# load config
+. /etc/powerschedule.conf
+
+# use systemd transisent timer to schedule system shutdown
+setPoweroffSchedule(){
+    SCHEDULE=$(date -d "$1")
+    echo "setting poweroff schedule to $1 ($SCHEDULE)"
+
+    # add transisent timer
+    systemd-run --on-calendar="$1" systemctl poweroff
+}
+
+# use rtcwake to wakeup
+setWakeupSchedule(){
+    SCHEDULE=$(date -d "$1")
+    echo "setting poweron schedule to $1 ($SCHEDULE)"
+
+    # normalize time
+    TS=$(date +%s -d "$1")
+
+    # set rtcwake; wakeup only; absolute time
+    rtcwake --mode=no --time=$TS
+}
+
+# system boot ?
+if [ "$1" = "boot" ]; then
+
+    # poweron set ?
+    [ ! -z "$DAILY_POWERON" ] && { setWakeupSchedule "$DAILY_POWERON"; }
+
+    # poweroff set ?
+    [ ! -z "$DAILY_POWEROFF" ] && { setPoweroffSchedule "$DAILY_POWEROFF"; }
+
+# system shutdown ?
+elif [ "$1" = "shutdown" ]; then
+
+    # poweron set ?
+    [ ! -z "$DAILY_POWERON" ] && { setWakeupSchedule "$DAILY_POWERON"; }
+fi

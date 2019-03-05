@@ -1,0 +1,45 @@
+{
+    "name": "powerschedule",
+    "version": "0.1.0",
+    "package-monster": "0.4.0",
+    "description": "easy sleepup/wakeup via rtcwake",
+    "license": "MPL-2.0",
+    "author": "Andi Dittrich <opensource@aenon-dynamics.com>",
+    "website": "https://github.com/AenonDynamics/powerschedule",
+    "bugs": "https://github.com/AenonDynamics/powerschedule/issues",
+    "multiversion": false,
+    "repository": "public",
+    "type": "script",
+
+    "debian": {
+
+        "section": "misc",
+        "priority": "optional",
+
+        "dependencies": [
+        ],
+
+        "etc": [
+            "powerschedule.conf"
+        ],
+
+        "sbin": [
+            "powerschedule"
+        ],
+
+        "files": [
+            {
+                "src": "systemd/powerschedule-boot.service",
+                "dst": "/lib/systemd/system/powerschedule-boot.service"
+            },
+            {
+                "src": "systemd/powerschedule-shutdown.service",
+                "dst": "/lib/systemd/system/powerschedule-shutdown.service"
+            }
+        ],
+
+        "scripts": {
+        }
+    }
+
+}
