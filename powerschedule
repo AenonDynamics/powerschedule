@@ -1,15 +1,15 @@
-#!/bin/sh
+#!/bin/bash
 
 # ----------------------------------------------------------------------
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 # --
-# Copyright 2019 Andi Dittrich <https://aenon-dynamics.com>
+# Copyright 2019-2020 Andi Dittrich <https://aenon-dynamics.com>
 # ----------------------------------------------------------------------
 
 # powerschedule https://github.com/AenonDynamics/powerschedule
-VERSION="0.1.0"
+VERSION="0.2.0"
 
 show_usage(){
     cat << EOF
@@ -33,12 +33,16 @@ EOF
 # simple processing
 [ "$1" = "--help" ] && show_usage
 [ "$1" = "--version" ] && show_version
+[ -z "$1" ] && show_usage
+
+# config file location
+CONF_FILENAME="/etc/powerschedule.conf"
 
 # config available ?
-[ ! -f "/etc/powerschedule.conf" ] && { echo >&2 "configuration file </etc/powerschedule.conf> not found"; exit 1; }
+[ ! -f "$CONF_FILENAME" ] && { echo >&2 "configuration file <${CONF_FILENAME}> not found"; exit 1; }
 
 # load config
-. /etc/powerschedule.conf
+source $CONF_FILENAME
 
 # use systemd transisent timer to schedule system shutdown
 setPoweroffSchedule(){
@@ -56,7 +60,9 @@ setPoweroffSchedule(){
     echo "setting power-off schedule to $SCHEDULE"
 
     # add transisent timer
-    systemd-run --on-calendar="$SCHEDULE" systemctl poweroff
+    systemd-run --on-calendar="$SCHEDULE" systemctl poweroff || {
+        echo "error: cannot enable systemd timer triggered power-off"
+    }
 }
 
 # use rtcwake to wakeup
@@ -75,21 +81,38 @@ setWakeupSchedule(){
     echo "setting power-on schedule to $SCHEDULE"
 
     # set rtcwake; wakeup only; absolute time
-    rtcwake --mode=no --time=$TS
+    rtcwake --mode=no --time=$TS || {
+        echo "error: cannot set rtcwake power-on"
+    }
 }
 
 # system boot ?
 if [ "$1" = "boot" ]; then
 
     # poweron set ?
-    [ ! -z "$DAILY_POWERON" ] && { setWakeupSchedule "$DAILY_POWERON"; }
+    [ ! -z "$DAILY_POWERON" ] && {
+        setWakeupSchedule "$DAILY_POWERON";
+    } || {
+        echo "no power-on schedule set in <${CONF_FILENAME}>"
+    }
 
     # poweroff set ?
-    [ ! -z "$DAILY_POWEROFF" ] && { setPoweroffSchedule "$DAILY_POWEROFF"; }
+    [ ! -z "$DAILY_POWEROFF" ] && {
+        setPoweroffSchedule "$DAILY_POWEROFF";
+    } || {
+        echo "no power-off schedule set in <${CONF_FILENAME}>"
+    }
 
 # system shutdown ?
 elif [ "$1" = "shutdown" ]; then
 
     # poweron set ?
-    [ ! -z "$DAILY_POWERON" ] && { setWakeupSchedule "$DAILY_POWERON"; }
+    [ ! -z "$DAILY_POWERON" ] && {
+        setWakeupSchedule "$DAILY_POWERON";
+    } || {
+        echo "no power-on schedule set in <${CONF_FILENAME}>"
+    }
 fi
+
+# success
+exit 0
