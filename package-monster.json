@@ -1,6 +1,6 @@
 {
     "name": "powerschedule",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "package-monster": "0.4.0",
     "description": "easy sleepup/wakeup via rtcwake",
     "license": "MPL-2.0",
@@ -30,7 +30,7 @@
         "files": [
             {
                 "src": "systemd/powerschedule.service",
-                "dst": "/lib/systemd/system/powerschedule.service"
+                "dst": "/usr/lib/systemd/system/powerschedule.service"
             }
         ],
 
